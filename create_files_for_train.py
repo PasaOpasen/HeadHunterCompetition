@@ -57,7 +57,7 @@ Y = sparse.vstack(
     )
 
 
-
+sparse.save_npz(f'Y.npz', Y)
 
 
 
