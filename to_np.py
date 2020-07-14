@@ -9,6 +9,7 @@ Created on Mon Jul 13 20:28:47 2020
 import numpy as np
 import gc
 from numba import jit
+from scipy import sparse
 
 import Stemmer
 stemmer = Stemmer.Stemmer('russian')
@@ -32,41 +33,45 @@ for line in lines:
 stops = set(voc.keys())
 
 
-def get_arr():
+
     
 
-    arr_ = [] #np.array([False for _ in range(len(stops))])
+arr_ = [] #np.array([False for _ in range(len(stops))])
     
-    kk = 0
+kk = 0
     
-    with open('word_lines.txt','r', encoding = 'utf8') as f:
+with open('word_lines.txt','r', encoding = 'utf8') as f:
         
-        for line in f:
+    for line in f:
             
-            kk += 1
+        kk += 1
             
-            tmp = set((stem(r) for r in line.rstrip().lower().split()))
+        tmp = set((stem(r) for r in line.rstrip().lower().split()))
             
             #arr_.append([word in tmp for word in stops])
             #arr_ = np.vstack((arr_, ))
-            arr_.append(np.array([word in tmp for word in stops]))                            
+        arr_.append(np.array([word in tmp for word in stops]))                            
                     
-            if kk % 10000 == 0:
-                print(kk)
+        if kk % 10000 == 0:
+            print(kk)
                 #gc.collect()
+            
+            if kk % 100000 == 0:
                 
-    return arr_
+                mat = sparse.csr_matrix(np.vstack(arr_))
+                sparse.save_npz(f'X3955_{kk//100000}.npz', mat)
+                arr_ = []
+                
+                # with open(f'X3955_{kk/100000}.npy', 'wb') as f:
+                #     np.save(f, np.vstack(arr_))
+                #     arr_ = []
+                
 
 
 
-with open('X3955.npy', 'wb') as f:
-    np.save(f, np.vstack(get_arr()))
+mat = sparse.csr_matrix(np.vstack(arr_))
 
-
-
-
-
-
+sparse.save_npz(f'X3955_{30}.npz', mat)
 
 
 
